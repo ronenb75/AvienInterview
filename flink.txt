@@ -1,0 +1,71 @@
+# Split 1:
+
+Source:
+CREATE TABLE split01In (
+    timeS VARCHAR(20),
+    truckID SMALLINT,
+    batt FLOAT,
+    speed SMALLINT
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'In',
+    'value.format' = 'json'
+)
+
+Sink:
+CREATE TABLE split01Out (
+    timeS VARCHAR(20),
+    truckID SMALLINT,
+    batt FLOAT,
+    speed SMALLINT
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'Out01',
+    'value.format' = 'json'
+)
+
+App:
+insert into split01Out
+select timeS, truckID, batt, speed
+from split01In
+where mod(truckID, 2) = 0
+
+# Split 2:
+
+Source:
+CREATE TABLE split02In (
+    timeS VARCHAR(20),
+    truckID SMALLINT,
+    batt FLOAT,
+    speed SMALLINT
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'In',
+    'value.format' = 'json'
+)
+
+Sink:
+CREATE TABLE split02Out (
+    timeS VARCHAR(20),
+    truckID SMALLINT,
+    batt FLOAT,
+    speed SMALLINT
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'Out02',
+    'value.format' = 'json'
+)
+
+App:
+insert into split02Out
+select timeS, truckID, batt, speed
+from split02In
+where mod(truckID, 2) <> 0
